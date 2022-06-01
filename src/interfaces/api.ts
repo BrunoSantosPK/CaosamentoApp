@@ -8,3 +8,8 @@ export interface LoginAPI {
         }
     };
 }
+
+export interface BaseResponseAPI {
+    statusCode: number,
+    message: string
+}
