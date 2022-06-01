@@ -9,18 +9,15 @@ import logo from "../../../assets/logo.png";
 // Customização
 import TabNavigate from "../../components/TabNavigate";
 import Header from "../../components/Header";
+import { navigateElements } from "../../utils/tabs";
+import Card from "../../components/Card";
 
 export default function Home() {
     // Máquina de estado
     const [loading, setLoading] = React.useState(false);
-    const [lambari, setLambari] = React.useState([] as Array<number>);
 
     React.useEffect(() => {
-        const chupeta = [];
-        for(let i = 0; i < 200; i++) {
-            chupeta.push(i);
-        }
-        setLambari(chupeta);
+        //
     }, []);
 
     return (
@@ -28,15 +25,15 @@ export default function Home() {
             {loading && <View style={global.loadingContent}>
                 <ActivityIndicator size="large" />
             </View>}
+            <Header title="Seus PETs" />
 
             <SafeAreaView style={global.content}>
                 <ScrollView contentContainerStyle={global.scrollContent}>
-                    <Header />
-                    {lambari.map((item, i) => (<Text>{item} Somos todos robalos</Text>))}
+                    {[1, 2, 3].map(() => (<Card />))}
                 </ScrollView>
             </SafeAreaView>
 
-            <TabNavigate />
+            <TabNavigate elements={navigateElements()} />
         </View>
     );
 }

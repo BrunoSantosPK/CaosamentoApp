@@ -21,17 +21,18 @@ export default StyleSheet.create({
 
     page: {
         flex: 1,
-        backgroundColor: "#fafafa"
+        backgroundColor: "#fafafa",
+        justifyContent: "space-between"
     },
 
     content: {
-        height: Dimensions.get("screen").height * 0.88,
+        height: Dimensions.get("screen").height * 0.73,
         
     },
 
     scrollContent: {
         paddingHorizontal: 20,
-        paddingTop: Constants.statusBarHeight + 10
+        paddingBottom: 10
     }
 
 });

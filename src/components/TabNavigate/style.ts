@@ -4,7 +4,13 @@ export default StyleSheet.create({
 
     content: {
         backgroundColor: "#E9F1F7",
-        height: "100%"
-    }
+        flexDirection: "row",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        justifyContent: "space-between",
+        alignItems: "center"
+    },
+
+    areaIcon: {}
 
 });

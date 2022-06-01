@@ -35,12 +35,6 @@ export default function Login() {
 
     // Gerencia a ação da página
     async function execute() {
-        // Teste
-        navigate.reset({
-            index: 0,
-            routes: [{ name: "Home" as never }]
-        });
-        return;
         try {
             // Valida os inputs, de acordo com o modo da página
             setLoading(true);
@@ -122,6 +116,10 @@ export default function Login() {
         const credenciais = await getCredentials();
         if(credenciais.success)
             setEmail(credenciais.data?.email as string);
+
+        // teste
+        setEmail("bruno.19ls@gmail.com");
+        setPass("lambari");
     }
     React.useEffect(() => { init(); }, []);
 
