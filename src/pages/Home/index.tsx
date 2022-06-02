@@ -4,21 +4,43 @@ import { View, Text, SafeAreaView, ScrollView, ActivityIndicator } from "react-n
 // Folhas de estilos e imagens
 import style from "./style";
 import global from "../../styles/global";
-import logo from "../../../assets/logo.png";
 
 // Customização
 import TabNavigate from "../../components/TabNavigate";
 import Header from "../../components/Header";
 import { navigateElements } from "../../utils/tabs";
 import Card from "../../components/Card";
+import { getCredentials } from "../../services/storage";
+import { simpleAlert } from "../../utils/alerts";
+import { getPETs } from "../../services/animals";
 
 export default function Home() {
     // Máquina de estado
     const [loading, setLoading] = React.useState(false);
 
-    React.useEffect(() => {
-        //
-    }, []);
+    // Função de inicialização
+    async function init() {
+        try {
+            // Carrega credenciais
+            const credentials = await getCredentials();
+            if(!credentials.success)
+                throw new Error(credentials.message);
+
+            // Recupera dados de pets cadastrados
+            const uid = credentials.data?.uid as string;
+            const token = credentials.data?.token as string;
+            
+            const pets = await getPETs(uid, token);
+            if(!pets.success)
+                throw new Error(pets.message);
+
+            console.log(pets);
+
+        } catch(error: any) {
+            simpleAlert("Alerta", error.message)
+        }
+    }
+    React.useEffect(() => { init(); }, []);
 
     return (
         <View style={global.page}>
