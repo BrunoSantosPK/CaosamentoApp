@@ -5,18 +5,41 @@ import { View, Text, SafeAreaView, ScrollView, ActivityIndicator } from "react-n
 import style from "./style";
 import global from "../../styles/global";
 
-// Customização
-import TabNavigate from "../../components/TabNavigate";
+// Componentes próprios de navegação e exibição
 import Header from "../../components/Header";
 import { navigateElements } from "../../utils/tabs";
-import Card from "../../components/Card";
-import { getCredentials } from "../../services/storage";
+import TabNavigate from "../../components/TabNavigate";
+import Card, { CardButton } from "../../components/Card";
+
+// Gerenciamento de API, armazenamento e funções diversas
+import { Animal } from "../../interfaces/api";
 import { simpleAlert } from "../../utils/alerts";
-import { getPETs } from "../../services/animals";
+import { getCredentials } from "../../services/storage";
+import { getPETs, getPhotoURL } from "../../services/animals";
 
 export default function Home() {
+    // Tipagem
+    type CardElement = { text: string, urlPhoto: string };
+
     // Máquina de estado
     const [loading, setLoading] = React.useState(false);
+    const [cards, setCards] = React.useState([] as Array<CardElement>);
+    const [buttons, setButtons] = React.useState([
+        { label: "Editar", callback: () => console.log("clicou em editar") },
+        { label: "Excluir", callback: () => console.log("clicou em excluir") }
+    ] as Array<CardButton>);
+
+    // Define o render para criação dos cartões
+    function renderCards(data: Array<Animal>) {
+        const elements: Array<CardElement> = [];
+        for(let i = 0; i < data.length; i++) {
+            elements.push({
+                text: `${data[i].name}\n${data[i].breedName}\n${data[i].description}`,
+                urlPhoto: `${getPhotoURL(data[i].photo)}`
+            });
+        }
+        setCards(elements);
+    }
 
     // Função de inicialização
     async function init() {
@@ -34,7 +57,8 @@ export default function Home() {
             if(!pets.success)
                 throw new Error(pets.message);
 
-            console.log(pets);
+            // Atualiza dados
+            renderCards(pets.data?.data.pets as Array<Animal>);
 
         } catch(error: any) {
             simpleAlert("Alerta", error.message)
@@ -51,7 +75,11 @@ export default function Home() {
 
             <SafeAreaView style={global.content}>
                 <ScrollView contentContainerStyle={global.scrollContent}>
-                    {[1, 2, 3].map(() => (<Card />))}
+
+                    {cards.map((item, i) => (
+                        <Card text={item.text} urlPhoto={item.urlPhoto} buttons={buttons} key={`card-${i}`} />
+                    ))}
+
                 </ScrollView>
             </SafeAreaView>
 

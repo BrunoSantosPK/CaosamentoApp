@@ -14,22 +14,24 @@ export interface BaseResponseAPI {
     message: string
 }
 
+export interface Animal {
+    _id: string;
+    photo: string;
+    uid: string;
+    name: string;
+    description: string
+    breedId: string;
+    breedName: string;
+    city: string;
+    country: string;
+    us: string;
+    email: string;
+}
+
 export interface GetAnimals {
     statusCode: number;
     message: string;
     data: {
-        pets: Array<{
-            _id: string,
-            photo: string,
-            uid: string,
-            name: string,
-            description: string,
-            breedId: string,
-            breedName: string,
-            city: string,
-            country: string,
-            us: string,
-            email: string
-        }>
+        pets: Array<Animal>
     }
 }

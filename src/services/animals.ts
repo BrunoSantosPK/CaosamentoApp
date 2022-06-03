@@ -20,3 +20,7 @@ export async function getPETs(uid: string, token: string) {
         return { success: false, message: error.message };
     }
 }
+
+export function getPhotoURL(photo: string) {
+    return `${BASE_URL}/static/${photo}`;
+}
