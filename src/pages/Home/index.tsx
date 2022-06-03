@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, SafeAreaView, ScrollView, ActivityIndicator } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { View, Text, SafeAreaView, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
 
 // Folhas de estilos e imagens
 import style from "./style";
@@ -45,6 +46,7 @@ export default function Home() {
     async function init() {
         try {
             // Carrega credenciais
+            setLoading(true);
             const credentials = await getCredentials();
             if(!credentials.success)
                 throw new Error(credentials.message);
@@ -62,6 +64,8 @@ export default function Home() {
 
         } catch(error: any) {
             simpleAlert("Alerta", error.message)
+        } finally {
+            setLoading(false);
         }
     }
     React.useEffect(() => { init(); }, []);
@@ -71,10 +75,17 @@ export default function Home() {
             {loading && <View style={global.loadingContent}>
                 <ActivityIndicator size="large" />
             </View>}
-            <Header title="Seus PETs" />
+            <Header title="" />
 
             <SafeAreaView style={global.content}>
                 <ScrollView contentContainerStyle={global.scrollContent}>
+
+                    <View style={style.homeRow}>
+                        <TouchableOpacity style={style.homeAddButton}>
+                            <MaterialIcons name="add-circle-outline" size={24} color="black" />
+                            <Text style={style.homeAddButtonText}>PET</Text>
+                        </TouchableOpacity>
+                    </View>
 
                     {cards.map((item, i) => (
                         <Card text={item.text} urlPhoto={item.urlPhoto} buttons={buttons} key={`card-${i}`} />

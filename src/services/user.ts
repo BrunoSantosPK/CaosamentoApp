@@ -1,4 +1,4 @@
-import { LoginAPI, BaseResponseAPI } from "../interfaces/api";
+import { LoginAPI, BaseResponseAPI, GetUserData } from "../interfaces/api";
 
 const BASE_URL = "http://192.168.0.192:3030";
 
@@ -12,6 +12,21 @@ export type ResultReset = {
     success: boolean,
     message?: string,
     data?: BaseResponseAPI
+};
+
+export type ResultGet = {
+    success: boolean,
+    message?: string,
+    data?: GetUserData
+};
+
+export type UpdateInputs = {
+    shareWhatsapp: boolean,
+    whatsapp?: string,
+    uf: string,
+    name: string,
+    city: string,
+    uid: string
 };
 
 export async function login(email: string, pass: string): Promise<ResultLogin> {
@@ -44,7 +59,7 @@ export async function reset(email: string): Promise<ResultReset> {
             method: "POST",
             headers: {
                 Accept: "application/json",
-                "Content-Type": "application/json",
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({ email })
         });
@@ -81,4 +96,47 @@ export async function newUser(email: string, pass: string, repeatPass: string): 
     } catch(error: any) {
         return { success: false, message: error.message };
     }
-} 
+}
+
+export async function getUserData(uid: string, token: string): Promise<ResultGet> {
+    try {
+        const url = `${BASE_URL}/user/${uid}`;
+        const req = await fetch(url, {
+            method: "GET",
+            headers: { uid, token }
+        });
+
+        const result: GetUserData = await req.json();
+        if(result.statusCode != 200)
+            throw new Error(result.message);
+
+        return { success: true, data: result };
+
+    } catch(error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function updateData(data: UpdateInputs, token: string, uid: string) {
+    try {
+        const url = `${BASE_URL}/user`;
+        const req = await fetch(url, {
+            method: "PUT",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                uid, token
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result: BaseResponseAPI = await req.json();
+        if(result.statusCode != 200)
+            throw new Error(result.message);
+            
+        return { success: true, data: result };
+
+    } catch(error: any) {
+        return { success: false, message: error.message };
+    }
+}

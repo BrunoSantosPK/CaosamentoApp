@@ -11,7 +11,7 @@ import global from "../../styles/global";
 import logo from "../../../assets/logo.png";
 
 // Customizações
-import * as auth from "../../services/auth";
+import * as auth from "../../services/user";
 import { simpleAlert } from "../../utils/alerts";
 import { setCredentials, getCredentials } from "../../services/storage";
 

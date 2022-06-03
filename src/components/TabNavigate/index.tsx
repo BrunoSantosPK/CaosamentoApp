@@ -18,7 +18,7 @@ export default function TabNavigate({ elements=[] }: Props) {
     return (
         <View style={style.content}>
             {elements.map((item, i) => (
-                <TouchableOpacity style={style.areaIcon} onPress={item.callback}>
+                <TouchableOpacity style={style.areaIcon} onPress={item.callback} key={`tab-button-${i}`}>
                     <MaterialIcons name={item.icon} size={35} color="black" />
                 </TouchableOpacity>
             ))}

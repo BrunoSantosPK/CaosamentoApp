@@ -24,7 +24,7 @@ export default function Card({ text="", urlPhoto="", buttons=[] }: Props) {
 
             <View style={style.buttonsRow}>
                 {buttons.map((item, i) => (
-                    <TouchableOpacity onPress={item.callback}>
+                    <TouchableOpacity onPress={item.callback} key={`card-button-${i}`}>
                         <Text style={style.buttonText}>{item.label}</Text>
                     </TouchableOpacity>
                 ))}

@@ -35,3 +35,21 @@ export interface GetAnimals {
         pets: Array<Animal>
     }
 }
+
+export interface GetUserData {
+    statusCode: number;
+    message: string;
+    data: {
+        user: {
+            _id: string,
+            name: string,
+            email: string,
+            uid: string,
+            city: string,
+            uf: string,
+            whatsapp: string,
+            shareWhatsapp: boolean,
+            country: string
+        }
+    }
+}
