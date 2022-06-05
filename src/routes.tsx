@@ -7,6 +7,7 @@ const AppStack = createStackNavigator();
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Config from "./pages/Config";
+import Search from "./pages/Search";
 
 export default function Routes() {
     return (
@@ -15,6 +16,7 @@ export default function Routes() {
                 <AppStack.Screen name="Login" component={Login} />
                 <AppStack.Screen name="Home" component={Home} />
                 <AppStack.Screen name="Config" component={Config} />
+                <AppStack.Screen name="Search" component={Search} />
             </AppStack.Navigator>
         </NavigationContainer>
     );

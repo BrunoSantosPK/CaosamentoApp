@@ -24,7 +24,7 @@ export interface Animal {
     breedName: string;
     city: string;
     country: string;
-    us: string;
+    uf: string;
     email: string;
 }
 
@@ -51,5 +51,29 @@ export interface GetUserData {
             shareWhatsapp: boolean,
             country: string
         }
+    }
+}
+
+export interface Breed {
+    _id: string;
+    name: string;
+    animal: string;
+    up: string;
+}
+
+export interface GetBreeds {
+    statusCode: number;
+    message: string;
+    data: {
+        breeds: Array<Breed>
+    }
+}
+
+export interface SearchAnimals {
+    statusCode: number;
+    message: string;
+    data: {
+        page: number,
+        pets: Array<Animal>
     }
 }

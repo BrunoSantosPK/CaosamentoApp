@@ -66,7 +66,7 @@ export default function Login() {
                     uid = result.data?.data.user.uid as string;
                     token = result.data?.data.user.token as string;
                     
-                    result = await setCredentials(uid, token, email);
+                    result = await setCredentials(uid, token, email, pass);
                     if(!result.success)
                         throw new Error(result.message);
 

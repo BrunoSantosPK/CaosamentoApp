@@ -15,10 +15,10 @@ import { navigateElements } from "../../utils/tabs";
 import TabNavigate from "../../components/TabNavigate";
 
 // Execuções e serviços
-import { getCityByUF, getUFs } from "../../services/ibge";
 import { simpleAlert } from "../../utils/alerts";
-import { getUserData, updateData, UpdateInputs } from "../../services/user";
 import { getCredentials } from "../../services/storage";
+import { getCityByUF, getUFs } from "../../services/ibge";
+import { getUserData, updateData, UpdateInputs } from "../../services/user";
 
 export default function Config() {
     // Tipagem
