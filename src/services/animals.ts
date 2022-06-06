@@ -1,6 +1,7 @@
 import { GetAnimals, GetBreeds, SearchAnimals } from "../interfaces/api";
 
-const BASE_URL = "http://192.168.0.192:3030";
+//const BASE_URL = "http://192.168.0.192:3030";
+const BASE_URL = "http://192.168.0.134:3030";
 
 export type DataSearch = {
     breed: string,

@@ -28,6 +28,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O aplicativo acessa fotos para cadastrar uma imagem de perfil para o PET."
+        }
+      ]
+    ]
   }
 }

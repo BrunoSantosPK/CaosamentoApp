@@ -18,31 +18,32 @@ import { getCredentials } from "../../services/storage";
 import { getCityByUF, getUFs } from "../../services/ibge";
 import { getBreeds, searchAnimals, DataSearch } from "../../services/animals";
 import { Breed } from "../../interfaces/api";
+import { getPhotoURL } from "../../services/animals";
 
 export default function Search() {
     // Tipagem
     type UF = { label: string, code: number };
+    type CardElement = { text: string, urlPhoto: string };
 
     // Define os padrões de seleção
     const pattern = {
         breed: "Raça",
         uf: "Estado",
-        city: "Cidade",
-        photo: "https://conteudo.imguol.com.br/c/entretenimento/54/2020/04/28/cachorro-pug-1588098472110_v2_1x1.jpg",
-        text: "Donec vestibulum dolor eros, id convallis purus viverra quis. Sed magna enim, pellentesque sit amet pretium vel, lacinia vel justo. Sed id vulputate nisl, id iaculis sem."
+        city: "Cidade"
     };
 
     // Máquina de estados
-    const [loading, setLoading] = React.useState(false);
-    const [breed, setBreed] = React.useState(pattern.breed);
-    const [uf, setUF] = React.useState(pattern.uf);
-    const [city, setCity] = React.useState(pattern.city);
-
     const [uid, setUID] = React.useState("");
     const [token, setToken] = React.useState("");
-    const [cities, setCities] = React.useState([] as Array<string>);
+    const [uf, setUF] = React.useState(pattern.uf);
+    const [loading, setLoading] = React.useState(false);
+    const [city, setCity] = React.useState(pattern.city);
+    const [breed, setBreed] = React.useState(pattern.breed);
+    
     const [ufs, setUFs] = React.useState([] as Array<UF>);
     const [breeds, setBreeds] = React.useState([] as Array<Breed>);
+    const [cities, setCities] = React.useState([] as Array<string>);
+    const [cards, setCards] = React.useState([] as Array<CardElement>);
     const [buttons, setButtons] = React.useState([
         { label: "Ver mais", callback: () => console.log("clicou em ver mais") }
     ] as Array<CardButton>);
@@ -62,12 +63,21 @@ export default function Search() {
                 throw new Error("Selecione uma raça.");
 
             const data: DataSearch = {
-                breed, city, uf, uid: "asdfa", page: 1
+                breed, city, uf, uid, page: 1
             };
 
             // Envia a requisição de busca
             const result = await searchAnimals(data, uid, token);
-            console.log(result);
+            const cdata: Array<CardElement> = [];
+
+            // Atualiza variável de estado para render dos cartões
+            result.data?.data.pets.forEach(item => {
+                cdata.push({
+                    text: `${item.name}\n${item.breedName}\n${item.description}`,
+                urlPhoto: `${getPhotoURL(item.photo)}`
+                })
+            });
+            setCards(cdata);
 
         } catch(error: any) {
             simpleAlert("Atenção", error.message);
@@ -189,15 +199,9 @@ export default function Search() {
                     </View>
 
                     <View style={style.areaResult}>
-
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-                        <Card text={pattern.text} urlPhoto={pattern.photo} buttons={buttons} />
-
+                        {cards.map((item, i) => (
+                            <Card text={item.text} urlPhoto={item.urlPhoto} buttons={buttons} key={`card-${i}`} />
+                        ))}
                     </View>
 
                 </ScrollView>
