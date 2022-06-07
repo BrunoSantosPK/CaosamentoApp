@@ -1,5 +1,6 @@
 import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { View, Text, SafeAreaView, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
 
 // Folhas de estilos e imagens
@@ -23,6 +24,7 @@ export default function Home() {
     type CardElement = { text: string, urlPhoto: string };
 
     // Máquina de estado
+    const navigation = useNavigation();
     const [loading, setLoading] = React.useState(false);
     const [cards, setCards] = React.useState([] as Array<CardElement>);
     const [buttons, setButtons] = React.useState([
@@ -40,6 +42,11 @@ export default function Home() {
             });
         }
         setCards(elements);
+    }
+
+    // Implementa a mudança de página para criação/edição de PET
+    function goAnimal() {
+        navigation.navigate("Animal" as never, { mode: "add" } as never);
     }
 
     // Função de inicialização
@@ -81,7 +88,7 @@ export default function Home() {
                 <ScrollView contentContainerStyle={global.scrollContent}>
 
                     <View style={style.homeRow}>
-                        <TouchableOpacity style={style.homeAddButton}>
+                        <TouchableOpacity style={style.homeAddButton} onPress={goAnimal}>
                             <MaterialIcons name="add-circle-outline" size={24} color="black" />
                             <Text style={style.homeAddButtonText}>PET</Text>
                         </TouchableOpacity>
