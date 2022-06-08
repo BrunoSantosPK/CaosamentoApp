@@ -69,11 +69,31 @@ export interface GetBreeds {
     }
 }
 
+export interface NewBreed {
+    statusCode: number;
+    message: string;
+    data: {
+        newBreed: {
+            name: string,
+            animal: string,
+            id: string
+        }
+    }
+}
+
 export interface SearchAnimals {
     statusCode: number;
     message: string;
     data: {
         page: number,
         pets: Array<Animal>
+    }
+}
+
+export interface NewAnimal {
+    statusCode: number;
+    message: string;
+    data: {
+        newAnimal: Animal
     }
 }

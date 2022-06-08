@@ -18,7 +18,7 @@ import { navigateElements } from "../../utils/tabs";
 import TabNavigate from "../../components/TabNavigate";
 
 // Gerenciamento de serviços e outras funções de manipulação
-import { getBreeds } from "../../services/animals";
+import { getBreeds, newBreed } from "../../services/animals";
 import { simpleAlert } from "../../utils/alerts";
 import { getCredentials } from "../../services/storage";
 
@@ -34,10 +34,12 @@ export default function Animal() {
 
     // Máquina de estados
     const [loading, setLoading] = React.useState(false);
+    const [modalVisible, setModalVisible] = React.useState(false);
     const [listBreeds, setListBreeds] = React.useState([] as Array<Breed>);
 
     const [name, setName] = React.useState("");
     const [breed, setBreed] = React.useState("");
+    const [nameBreed, setNameBreed] = React.useState("");
     const [image, setImage] = React.useState(null as Photo);
     const [description, setDescription] = React.useState("");
 
@@ -55,8 +57,45 @@ export default function Animal() {
     }
 
     // Gerencia a ação de escolha de raça
+    function callbackBreed(id: string) {
+        if(id == "0")
+            setModalVisible(true);
+        setBreed(id);
+    }
 
     // Implementação do modal para cadastro de raça
+    async function saveBreed() {
+        try {
+            // Recupera credenciais de acesso
+            setLoading(true);
+            const credentials = await getCredentials();
+            if(!credentials.success)
+                throw new Error(credentials.message);
+
+            const uid = credentials.data?.uid as string;
+            const token = credentials.data?.token as string;
+
+            // Faz o cadastro de nova raça
+            const result = await newBreed(nameBreed, uid, token);
+            if(!result.success)
+                throw new Error(result.message);
+
+            // Renderiza os dados de raças internos
+            const id = result.data?.data.newBreed.id as string;
+            const data: Array<Breed> = [...listBreeds];
+            data.push({ name: nameBreed, id });
+            
+            setBreed("-1");
+            setNameBreed("");
+            setListBreeds(data);
+            setModalVisible(false);
+
+        } catch(error: any) {
+            simpleAlert("Atenção", error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     // Função de inicialização
     async function init() {
@@ -125,7 +164,9 @@ export default function Animal() {
 
                     <View style={style.formElement}>
                         <View style={style.contentSelect}>
-                            <Picker selectedValue={breed} onValueChange={(value, i) => setBreed(value)}>
+                            <Picker selectedValue={breed} onValueChange={(value, i) => callbackBreed(value)}>
+                                <Picker.Item label="Selecione uma raça" value="-1" />
+                                <Picker.Item label="Nova raça" value="0" />
                                 {listBreeds.map((item, i) => (
                                     <Picker.Item label={item.name} value={item.id} key={`breed-${i}`} />
                                 ))}
@@ -152,24 +193,25 @@ export default function Animal() {
                     <Modal
                         animationType="slide"
                         transparent={true}
+                        visible={modalVisible}
                     >
                         <View style={style.containerModal}>
                             <View style={style.contentModal}>
                                 <View style={style.modalHeader}>
                                     <Text style={style.modalTitle}>Cadastro de nova raça</Text>
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setModalVisible(false)}>
                                         <AntDesign name="closecircleo" size={24} color="black" />
                                     </TouchableOpacity>
                                 </View>
 
                                 <TextInput
-                                    onChangeText={text => setDescription(text)}
+                                    onChangeText={text => setNameBreed(text)}
                                     style={style.modalInput}
                                     placeholder="Nome da raça"
-                                    value={description}
+                                    value={nameBreed}
                                 />
 
-                                <TouchableOpacity style={style.buttonExecute}>
+                                <TouchableOpacity style={style.buttonExecute} onPress={saveBreed}>
                                     <Text style={style.buttonExecuteText}>Cadastrar</Text>
                                 </TouchableOpacity>
                             </View>
