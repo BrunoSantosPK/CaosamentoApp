@@ -1,9 +1,10 @@
 import React from "react";
+import { AntDesign } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRoute } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 import {
-    View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Image,
+    View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Image, Modal,
     TouchableWithoutFeedback, ActivityIndicator, Platform, Keyboard, ScrollView
 } from "react-native";
 
@@ -16,11 +17,16 @@ import Header from "../../components/Header";
 import { navigateElements } from "../../utils/tabs";
 import TabNavigate from "../../components/TabNavigate";
 
+// Gerenciamento de serviços e outras funções de manipulação
+import { getBreeds } from "../../services/animals";
+import { simpleAlert } from "../../utils/alerts";
+import { getCredentials } from "../../services/storage";
+
 export default function Animal() {
     // Tipagem
-    type RouteParams = { mode: "add" | "edit" };
     type Photo = string | null;
-    type FormData = {};
+    type Breed = { name: string, id: string };
+    type RouteParams = { mode: "add" | "edit" };
 
     // Sistema de navegação
     const route = useRoute();
@@ -28,10 +34,12 @@ export default function Animal() {
 
     // Máquina de estados
     const [loading, setLoading] = React.useState(false);
+    const [listBreeds, setListBreeds] = React.useState([] as Array<Breed>);
+
     const [name, setName] = React.useState("");
-    const [description, setDescription] = React.useState("");
     const [breed, setBreed] = React.useState("");
     const [image, setImage] = React.useState(null as Photo);
+    const [description, setDescription] = React.useState("");
 
     // Busca de imagem
     async function getImage() {
@@ -46,10 +54,41 @@ export default function Animal() {
             setImage(result.uri);
     }
 
+    // Gerencia a ação de escolha de raça
+
     // Implementação do modal para cadastro de raça
 
     // Função de inicialização
-    async function init() {}
+    async function init() {
+        try {
+            // Recupera credenciais de acesso
+            setLoading(true);
+            const credentials = await getCredentials();
+            if(!credentials.success)
+                throw new Error(credentials.message);
+
+            const uid = credentials.data?.uid as string;
+            const token = credentials.data?.token as string;
+
+            // Busca dados de raças cadastradas
+            const result = await getBreeds(uid, token);
+            if(!result.success)
+                throw new Error(result.message);
+
+            // Prepara dados para variável de estado
+            const data: Array<Breed> = [];
+            result.data?.data.breeds.forEach(item => {
+                data.push({ name: item.name, id: item._id });
+            });
+
+            setListBreeds(data);
+
+        } catch(error: any) {
+            simpleAlert("Atenção", error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
     React.useEffect(() => { init(); }, []);
 
     return (
@@ -67,6 +106,7 @@ export default function Animal() {
                             onChangeText={text => setName(text)}
                             style={style.input}
                             placeholder="Nome do PET"
+                            textAlignVertical="top"
                             value={name}
                         />
                     </View>
@@ -74,28 +114,67 @@ export default function Animal() {
                     <View style={style.formElement}>
                         <TextInput
                             multiline
+                            textAlignVertical="top"
                             numberOfLines={3}
                             onChangeText={text => setDescription(text)}
                             style={style.input}
-                            placeholder="Nome do PET"
+                            placeholder="Descrição do PET"
                             value={description}
                         />
                     </View>
 
                     <View style={style.formElement}>
-                        <Picker selectedValue={breed} onValueChange={(value, i) => setBreed(value)}>
-                            <Picker.Item label={"Raçudo"} value={"racudo"} />
-                            <Picker.Item label={"Chupeta"} value={"chupeta"} />
-                        </Picker>
+                        <View style={style.contentSelect}>
+                            <Picker selectedValue={breed} onValueChange={(value, i) => setBreed(value)}>
+                                {listBreeds.map((item, i) => (
+                                    <Picker.Item label={item.name} value={item.id} key={`breed-${i}`} />
+                                ))}
+                            </Picker>
+                        </View>
                     </View>
 
                     <View style={style.formElement}>
-                        <TouchableOpacity onPress={getImage}>
-                            <Text>Selecione uma foto de perfil para o PET</Text>
+                        <TouchableOpacity onPress={getImage} style={style.buttonImage}>
+                            <Text style={style.buttonImagemText}>Foto do PET</Text>
                         </TouchableOpacity>
 
-                        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+                        {image && <View style={style.contentImage}>
+                            <Image source={{ uri: image }} style={style.image} />
+                        </View>}
                     </View>
+
+                    <View style={style.formElement}>
+                        <TouchableOpacity style={style.buttonExecute}>
+                            <Text style={style.buttonExecuteText}>Cadastrar</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                    >
+                        <View style={style.containerModal}>
+                            <View style={style.contentModal}>
+                                <View style={style.modalHeader}>
+                                    <Text style={style.modalTitle}>Cadastro de nova raça</Text>
+                                    <TouchableOpacity>
+                                        <AntDesign name="closecircleo" size={24} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <TextInput
+                                    onChangeText={text => setDescription(text)}
+                                    style={style.modalInput}
+                                    placeholder="Nome da raça"
+                                    value={description}
+                                />
+
+                                <TouchableOpacity style={style.buttonExecute}>
+                                    <Text style={style.buttonExecuteText}>Cadastrar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
 
                 </ScrollView>
             </TouchableWithoutFeedback>
