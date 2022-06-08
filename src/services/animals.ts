@@ -109,15 +109,32 @@ export async function newAnimal(data: DataNewAnimal, uid: string, token: string)
     try {
         // Compõe o form data
         const form = new FormData();
+        const fileParts = data.photoURI.split(".");
+        const fileExtension = fileParts[fileParts.length - 1];
+
         form.append("uid", data.uid);
         form.append("name", data.name);
         form.append("breed", data.breed);
         form.append("description", data.description);
         form.append("photo", {
-            name: `upload-image-${Date.now}`,
-            type: "image",
+            name: `upload-image-${Date.now()}.${fileExtension}`,
+            type: `image/${fileExtension}`,
             uri: data.photoURI
         } as any);
+
+        // Envia requisição
+        const url = `${BASE_URL}/animal`;
+        const req = await fetch(url, {
+            method: "POST",
+            headers: { uid, token },
+            body: form
+        });
+
+        const result: NewAnimal = await req.json();
+        if(result.statusCode != 200)
+            throw new Error(result.message);
+
+        return { success: true, data: result };
 
     } catch(error: any) {
         return { success: false, message: error.message };

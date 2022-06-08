@@ -1,7 +1,7 @@
 import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, SafeAreaView, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from "react-native";
 
 // Folhas de estilos e imagens
 import style from "./style";
@@ -26,11 +26,19 @@ export default function Home() {
     // Máquina de estado
     const navigation = useNavigation();
     const [loading, setLoading] = React.useState(false);
+    const [refreshing, setRefreshing] = React.useState(false);
     const [cards, setCards] = React.useState([] as Array<CardElement>);
     const [buttons, setButtons] = React.useState([
         { label: "Editar", callback: () => console.log("clicou em editar") },
         { label: "Excluir", callback: () => console.log("clicou em excluir") }
     ] as Array<CardButton>);
+
+    // Gerencia o render ao fazer o scroll
+    async function render() {
+        setRefreshing(true);
+        await init();
+        setRefreshing(false);
+    }
 
     // Define o render para criação dos cartões
     function renderCards(data: Array<Animal>) {
@@ -85,7 +93,10 @@ export default function Home() {
             <Header title="" />
 
             <SafeAreaView style={global.content}>
-                <ScrollView contentContainerStyle={global.scrollContent}>
+                <ScrollView
+                    contentContainerStyle={global.scrollContent}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={render} />}
+                >
 
                     <View style={style.homeRow}>
                         <TouchableOpacity style={style.homeAddButton} onPress={goAnimal}>

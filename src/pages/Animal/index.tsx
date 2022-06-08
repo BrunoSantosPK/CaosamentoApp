@@ -18,9 +18,9 @@ import { navigateElements } from "../../utils/tabs";
 import TabNavigate from "../../components/TabNavigate";
 
 // Gerenciamento de serviços e outras funções de manipulação
-import { getBreeds, newBreed } from "../../services/animals";
 import { simpleAlert } from "../../utils/alerts";
 import { getCredentials } from "../../services/storage";
+import { getBreeds, newBreed, newAnimal, DataNewAnimal } from "../../services/animals";
 
 export default function Animal() {
     // Tipagem
@@ -42,6 +42,52 @@ export default function Animal() {
     const [nameBreed, setNameBreed] = React.useState("");
     const [image, setImage] = React.useState(null as Photo);
     const [description, setDescription] = React.useState("");
+
+    // Finaliza o processo de criação
+    async function savePET() {
+        try {
+            // Verifica dados inputados
+            setLoading(true);
+            if(name.length < 6)
+                throw new Error("É preciso informar um nome para o PET com ao menos 6 caracteres.");
+
+            if(description.length < 10)
+                throw new Error("É preciso informar uma descrição com ao menos 10 caracteres.");
+
+            if(breed == "0" || breed == "-1")
+                throw new Error("Selecione uma raça para prosseguir.");
+
+            if(image == null)
+                throw new Error("Escolha uma foto para prosseguir.");
+
+            // Recupera credenciais de acesso
+            const credentials = await getCredentials();
+            if(!credentials.success)
+                throw new Error(credentials.message);
+
+            const uid = credentials.data?.uid as string;
+            const token = credentials.data?.token as string;
+
+            // Envia requisição de adição
+            const data: DataNewAnimal = { name, breed, description, uid, photoURI: image };
+            const result = await newAnimal(data, uid, token);
+            if(!result.success)
+                throw new Error(result.message);
+
+            // Limpa os inputs
+            setName("");
+            setBreed("-1");
+            setImage(null);
+            setDescription("");
+
+            simpleAlert("Sucesso", "Seu novo PET foi cadastrado.");
+
+        } catch(error: any) {
+            simpleAlert("Atenção", error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     // Busca de imagem
     async function getImage() {
@@ -66,6 +112,10 @@ export default function Animal() {
     // Implementação do modal para cadastro de raça
     async function saveBreed() {
         try {
+            // Verifica validade dos inputs
+            if(nameBreed.length < 5)
+                throw new Error("O nome para raça precisa ter ao menos 5 caracteres.");
+            
             // Recupera credenciais de acesso
             setLoading(true);
             const credentials = await getCredentials();
@@ -185,7 +235,7 @@ export default function Animal() {
                     </View>
 
                     <View style={style.formElement}>
-                        <TouchableOpacity style={style.buttonExecute}>
+                        <TouchableOpacity style={style.buttonExecute} onPress={savePET}>
                             <Text style={style.buttonExecuteText}>Cadastrar</Text>
                         </TouchableOpacity>
                     </View>
