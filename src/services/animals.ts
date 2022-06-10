@@ -1,4 +1,4 @@
-import { GetAnimals, GetBreeds, SearchAnimals, NewBreed, NewAnimal } from "../interfaces/api";
+import { GetAnimals, GetBreeds, SearchAnimals, NewBreed, NewAnimal, BaseResponseAPI } from "../interfaces/api";
 
 //const BASE_URL = "http://192.168.0.192:3030";
 const BASE_URL = "http://192.168.0.134:3030";
@@ -131,6 +131,30 @@ export async function newAnimal(data: DataNewAnimal, uid: string, token: string)
         });
 
         const result: NewAnimal = await req.json();
+        if(result.statusCode != 200)
+            throw new Error(result.message);
+
+        return { success: true, data: result };
+
+    } catch(error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function deleteAnimal(animal: string, uid: string, token: string) {
+    try {
+        const url = `${BASE_URL}/animal`;
+        const req = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                uid, token
+            },
+            body: JSON.stringify({ animal })
+        });
+
+        const result: BaseResponseAPI = await req.json();
         if(result.statusCode != 200)
             throw new Error(result.message);
 

@@ -4,6 +4,7 @@ import { View, Image, Text, TouchableOpacity } from "react-native";
 import style from "./style";
 
 type Props = {
+    id: string,
     text: string,
     urlPhoto: string,
     buttons: Array<CardButton>
@@ -11,10 +12,10 @@ type Props = {
 
 export type CardButton = {
     label: string,
-    callback: () => void
+    callback: (id: string) => void
 };
 
-export default function Card({ text="", urlPhoto="", buttons=[] }: Props) {
+export default function Card({ id="", text="", urlPhoto="", buttons=[] }: Props) {
     return (
         <View style={style.content}>
             <View style={style.principalRow}>
@@ -24,7 +25,7 @@ export default function Card({ text="", urlPhoto="", buttons=[] }: Props) {
 
             <View style={style.buttonsRow}>
                 {buttons.map((item, i) => (
-                    <TouchableOpacity onPress={item.callback} key={`card-button-${i}`}>
+                    <TouchableOpacity onPress={() => item.callback(id)} key={`card-button-${i}`}>
                         <Text style={style.buttonText}>{item.label}</Text>
                     </TouchableOpacity>
                 ))}
