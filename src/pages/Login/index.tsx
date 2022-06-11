@@ -118,7 +118,7 @@ export default function Login() {
             setEmail(credenciais.data?.email as string);
 
         // teste
-        setEmail("bruno.19ls@gmail.com");
+        setEmail("user@user.com.br");
         setPass("lambari");
     }
     React.useEffect(() => { init(); }, []);

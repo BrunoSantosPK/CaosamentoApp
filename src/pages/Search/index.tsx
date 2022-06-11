@@ -1,6 +1,7 @@
 import React from "react";
+import { AntDesign } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator, ScrollView, Modal } from "react-native";
 
 // Folhas de estilos e imagens
 import style from "./style";
@@ -19,11 +20,12 @@ import { getCityByUF, getUFs } from "../../services/ibge";
 import { getBreeds, searchAnimals, DataSearch } from "../../services/animals";
 import { Breed } from "../../interfaces/api";
 import { getPhotoURL } from "../../services/animals";
+import { Animal } from "../../interfaces/api";
 
 export default function Search() {
     // Tipagem
     type UF = { label: string, code: number };
-    type CardElement = { text: string, urlPhoto: string };
+    type CardElement = { text: string, urlPhoto: string, pet: Animal };
 
     // Define os padrões de seleção
     const pattern = {
@@ -41,11 +43,13 @@ export default function Search() {
     const [breed, setBreed] = React.useState(pattern.breed);
     
     const [ufs, setUFs] = React.useState([] as Array<UF>);
+    const [selectAnimal, setSelectAnimal] = React.useState("");
+    const [modalVisible, setModalVisible] = React.useState(false);
     const [breeds, setBreeds] = React.useState([] as Array<Breed>);
     const [cities, setCities] = React.useState([] as Array<string>);
     const [cards, setCards] = React.useState([] as Array<CardElement>);
     const [buttons, setButtons] = React.useState([
-        { label: "Ver mais", callback: () => console.log("clicou em ver mais") }
+        { label: "Ver mais", callback: (id) => showDetail(id) }
     ] as Array<CardButton>);
 
     // Faz a busca
@@ -74,7 +78,8 @@ export default function Search() {
             result.data?.data.pets.forEach(item => {
                 cdata.push({
                     text: `${item.name}\n${item.breedName}\n${item.description}`,
-                urlPhoto: `${getPhotoURL(item.photo)}`
+                    urlPhoto: `${getPhotoURL(item.photo)}`,
+                    pet: item
                 })
             });
             setCards(cdata);
@@ -84,6 +89,12 @@ export default function Search() {
         } finally {
             setLoading(false);
         }
+    }
+
+    // Controla a abertura do modal de detalhes
+    function showDetail(id: string) {
+        setModalVisible(true);
+        setSelectAnimal(id);
     }
 
     // Sequência para atualização das cidades disponíveis
@@ -200,9 +211,47 @@ export default function Search() {
 
                     <View style={style.areaResult}>
                         {cards.map((item, i) => (
-                            <Card text={item.text} urlPhoto={item.urlPhoto} buttons={buttons} key={`card-${i}`} />
+                            <Card
+                                id={item.pet._id}
+                                text={item.text}
+                                urlPhoto={item.urlPhoto}
+                                buttons={buttons} key={`card-${i}`}
+                            />
                         ))}
                     </View>
+
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                    >
+                        <View style={global.containerModal}>
+                            <View style={global.contentModal}>
+                                <View style={global.modalHeader}>
+                                    <Text style={global.modalTitle}>
+                                        {cards.find(item => item.pet._id == selectAnimal)?.pet.name}
+                                    </Text>
+                                    <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                        <AntDesign name="closecircleo" size={24} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <Text>
+                                    {cards.find(item => item.pet._id == selectAnimal)?.pet.breedName}
+                                    {"\n"}
+                                    {cards.find(item => item.pet._id == selectAnimal)?.pet.description}
+                                    {"\n\nDono: "}
+                                    {cards.find(item => item.pet._id == selectAnimal)?.pet.email}
+                                    {"\nContato via whatsapp? "}
+                                    {cards.find(item => item.pet._id == selectAnimal)?.pet.shareWhatsapp
+                                        ? "Sim\n" + cards.find(item => item.pet._id == selectAnimal)?.pet.whatsapp
+                                        : "Não"
+                                    }
+                                </Text>
+
+                            </View>
+                        </View>
+                    </Modal>
 
                 </ScrollView>
             </SafeAreaView>

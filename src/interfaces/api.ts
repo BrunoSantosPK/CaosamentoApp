@@ -26,6 +26,8 @@ export interface Animal {
     country: string;
     uf: string;
     email: string;
+    shareWhatsapp: boolean;
+    whatsapp: string;
 }
 
 export interface GetAnimals {

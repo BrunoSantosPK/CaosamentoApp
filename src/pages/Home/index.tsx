@@ -22,6 +22,7 @@ import { Animal } from "../../interfaces/api";
 import { simpleAlert } from "../../utils/alerts";
 import { getCredentials } from "../../services/storage";
 import { getPETs, getPhotoURL, deleteAnimal } from "../../services/animals";
+import { getUserData } from "../../services/user";
 
 export default function Home() {
     // Tipagem
@@ -93,8 +94,33 @@ export default function Home() {
     }
 
     // Implementa a mudança de página para criação/edição de PET
-    function goAnimal() {
-        navigation.navigate("Animal" as never, { mode: "add" } as never);
+    async function goAnimal() {
+        try {
+            // Carrega credenciais
+            setLoading(true);
+            const credentials = await getCredentials();
+            if(!credentials.success)
+                throw new Error(credentials.message);
+
+            const uid = credentials.data?.uid as string;
+            const token = credentials.data?.token as string;
+
+            // Recupera dados pessoais
+            const result = await getUserData(uid, token);
+            if(!result.success)
+                throw new Error(result.message);
+
+            if(result.data?.data.user.name == undefined)
+                throw new Error("Finalize seu cadastro de informações pessoais antes de cadastrar PETs.");
+
+            // Redireciona para página
+            navigation.navigate("Animal" as never, { mode: "add" } as never);
+
+        } catch(error: any) {
+            simpleAlert("Atenção", error.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
     // Função de inicialização
